@@ -1,4 +1,6 @@
 require("@nomiclabs/hardhat-waffle");
+const dotenv = require("dotenv");
+dotenv.config();
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -21,7 +23,8 @@ module.exports = {
   networks: {
     mumbai: {
       url: process.env.INFURA_URL_MUMBAI,
-      accounts: ["YOUR_TEST_WALLET_PRIVATE_KEY"],
+      accounts: [process.env.PRIVATE_KEY],
+      gas: 6000000,
     }
   }
 };
