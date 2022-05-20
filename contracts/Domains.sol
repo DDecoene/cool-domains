@@ -9,10 +9,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import {StringUtils} from "./libraries/StringUtils.sol";
 import {Base64} from "./libraries/Base64.sol";
 
-error NotOwnerError(string domainname, address msgSender);
-error InsufficientFundsError(uint256 price);
-error AlreadyRegisteredError(string domainname);
-
 contract Domains is ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
@@ -24,6 +20,11 @@ contract Domains is ERC721URIStorage, Ownable {
 
     mapping(string => address) public domains;
     mapping(string => string) public records;
+    mapping(uint256 => string) public names;
+
+    error NotOwnerError(string domainname, address msgSender);
+    error InsufficientFundsError(uint256 price);
+    error AlreadyRegisteredError(string domainname);
 
     string public tld;
 
@@ -34,7 +35,7 @@ contract Domains is ERC721URIStorage, Ownable {
         _;
     }
 
-    constructor(string memory _tld) ERC721("Focus Name Service","FNS") {
+    constructor(string memory _tld) ERC721("Focus Name Service", "FNS") {
         tld = _tld;
         console.log("%s name service deployed", _tld);
     }
@@ -105,7 +106,9 @@ contract Domains is ERC721URIStorage, Ownable {
 
         _safeMint(msg.sender, newRecordId);
         _setTokenURI(newRecordId, finalTokenUri);
+
         domains[name] = msg.sender;
+        names[newRecordId] = name;
 
         _tokenIds.increment();
     }
@@ -135,7 +138,22 @@ contract Domains is ERC721URIStorage, Ownable {
         return records[domainname];
     }
 
-    function withdraw() public onlyOwner(){
+    function withdraw() public onlyOwner {
         payable(msg.sender).transfer(address(this).balance);
+    }
+
+    function getAllNames() public view returns (string[] memory) {
+        console.log("Getting all names from contract");
+        string[] memory allNames = new string[](_tokenIds.current());
+        for (uint256 i = 0; i < _tokenIds.current(); i++) {
+            allNames[i] = names[i];
+            console.log("Name for token %d is %s", i, allNames[i]);
+        }
+
+        return allNames;
+    }
+
+    function valid(string calldata name) public pure returns (bool) {
+        return StringUtils.strlen(name) >= 3 && StringUtils.strlen(name) <= 10;
     }
 }
