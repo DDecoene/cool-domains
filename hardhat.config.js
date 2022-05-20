@@ -1,4 +1,6 @@
 require("@nomiclabs/hardhat-waffle");
+require("@nomiclabs/hardhat-etherscan");
+require("hardhat-gas-reporter");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -26,5 +28,17 @@ module.exports = {
       accounts: [process.env.PRIVATE_KEY],
       gas: 6000000,
     }
-  }
+  },
+  etherscan: {
+    apiKey: {
+        mainnet: process.env.ETHERSCAN_API_KEY,
+        polygonMumbai:process.env.POLYGONSCAN_API_KEY,
+    }
+  },
+  gasReporter: {
+    currency: "EUR",
+    token: "MATIC",
+    gasPriceApi: "https://api.polygonscan.com/api?module=proxy&action=eth_gasPrice",
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY,
+  },
 };
